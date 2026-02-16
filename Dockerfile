@@ -1,7 +1,7 @@
 # 多阶段构建，优化镜像大小
 
 # 构建阶段
-FROM rust:1.83 as builder
+FROM rust:1.83 AS builder
 
 WORKDIR /app
 
