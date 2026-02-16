@@ -148,46 +148,11 @@ color = true
 
 使用：
 ```bash
-cp config.development.toml config.toml
-./rust-webserver-linux-x86_64
-```
-
-### 生产环境
-
-保存为 `config.production.toml`：
-
-```toml
-[server]
-host = "0.0.0.0"
-port = 8080
-
-[logging]
-level = "info"
-format = "json"
-color = false
-```
-
-使用：
-```bash
 cp config.production.toml config.toml
 ./rust-webserver-linux-x86_64
 ```
 
-### Docker 环境
-
-```dockerfile
-FROM rust:1.83 as builder
-WORKDIR /app
-COPY . .
-RUN cargo build --release
-
-FROM debian:bookworm-slim
-RUN apt-get update && apt-get install -y ca-certificates
-COPY --from=builder /app/target/release/rust-webserver /usr/local/bin/
-COPY config.production.toml /etc/rust-webserver/config.toml
-EXPOSE 8080
-CMD ["rust-webserver"]
-```
+> 💡 **提示：** Docker 部署请参考 [DOCKER.md](DOCKER.md)
 
 ---
 

@@ -116,6 +116,37 @@ cargo run
    rust-webserver-windows-x86_64.exe
    ```
 
+### Docker 部署
+
+使用 Docker 快速部署：
+
+```bash
+# 构建镜像
+docker build -t rust-webserver:latest .
+
+# 运行容器
+docker run -d -p 3000:3000 --name rust-webserver rust-webserver:latest
+
+# 使用环境变量配置
+docker run -d -p 3000:3000 \
+  -e SERVER_PORT=8080 \
+  -e LOG_LEVEL=debug \
+  --name rust-webserver \
+  rust-webserver:latest
+```
+
+**详细 Docker 文档：** [DOCKER.md](DOCKER.md)
+
+## 文档
+
+| 文档 | 说明 |
+|------|------|
+| [README.md](README.md) | 项目概述和快速开始 |
+| [CONFIG.md](CONFIG.md) | 配置文件详细说明 |
+| [STRUCTURE.md](STRUCTURE.md) | 项目架构和模块说明 |
+| [USAGE.md](USAGE.md) | 使用指南（systemd、手动部署） |
+| [DOCKER.md](DOCKER.md) | Docker 部署完整指南 |
+
 ## CI/CD
 
 项目使用 GitHub Actions 自动构建和发布：
