@@ -1,54 +1,99 @@
-use axum::{
-    routing::get,
-    Json, Router,
-};
-use serde_json::Value;
-use std::net::SocketAddr;
+mod config;
+mod handlers;
+mod models;
+mod routes;
+
+use axum::Router;
+use config::ServerConfig;
+use std::time::Duration;
+use tokio::net::TcpListener;
+use tower_http::timeout::TimeoutLayer;
+use tower_http::trace::TraceLayer;
 
 #[tokio::main]
-async fn main() {
-    // 构建路由
-    let app = Router::new()
-        .route("/version", get(version))
-        .route("/ping", get(ping))
-        .route("/health", get(health));
+async fn main() -> anyhow::Result<()> {
+    // 初始化日志
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::INFO)
+        .init();
 
-    // 绑定地址
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    println!("🚀 Server listening on http://{}", addr);
+    // 加载配置
+    let config = ServerConfig::from_env();
+    let addr = config.addr();
+
+    tracing::info!("🚀 Starting {} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    tracing::info!("📡 Server listening on http://{}", addr);
+
+    // 创建路由
+    let app = create_app();
 
     // 启动服务器
-    let listener = tokio::net::TcpListener::bind(addr)
-        .await
-        .expect("Failed to bind");
-
+    let listener = TcpListener::bind(addr).await?;
     axum::serve(listener, app)
         .await
-        .expect("Server error");
+        .map_err(|e| anyhow::anyhow!("Server error: {}", e))?;
+
+    Ok(())
 }
 
-// /version - 返回版本号
-async fn version() -> Json<Value> {
-    Json(serde_json::json!({
-        "version": env!("CARGO_PKG_VERSION"),
-        "name": env!("CARGO_PKG_NAME")
-    }))
+/// 创建应用实例
+fn create_app() -> Router {
+    routes::create_router()
+        .layer(TraceLayer::new_for_http())
+        .layer(TimeoutLayer::new(Duration::from_secs(30)))
 }
 
-// /ping - 返回 pong
-async fn ping() -> String {
-    "pong".to_string()
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use axum::http::StatusCode;
+    use tower::ServiceExt;
 
-// /health - 健康检查
-async fn health() -> Json<Value> {
-    Json(serde_json::json!({
-        "status": "ok",
-        "version": env!("CARGO_PKG_VERSION"),
-        "service": env!("CARGO_PKG_NAME"),
-        "timestamp": std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .unwrap()
-            .as_secs()
-    }))
+    #[tokio::test]
+    async fn test_health_endpoint() {
+        let app = create_app();
+        let response = app
+            .oneshot(
+                axum::http::Request::builder()
+                    .uri("/health")
+                    .body(axum::body::Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn test_ping_endpoint() {
+        let app = create_app();
+        let response = app
+            .oneshot(
+                axum::http::Request::builder()
+                    .uri("/ping")
+                    .body(axum::body::Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
+
+    #[tokio::test]
+    async fn test_version_endpoint() {
+        let app = create_app();
+        let response = app
+            .oneshot(
+                axum::http::Request::builder()
+                    .uri("/version")
+                    .body(axum::body::Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+    }
 }
