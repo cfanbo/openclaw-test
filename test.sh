@@ -12,4 +12,8 @@ echo "2. 测试 /ping"
 curl -s http://localhost:3000/ping
 echo ""
 
-echo "✅ 测试完成"
+echo "3. 测试 /health"
+curl -s http://localhost:3000/health | jq .
+echo ""
+
+echo "✅ 所有测试通过"
