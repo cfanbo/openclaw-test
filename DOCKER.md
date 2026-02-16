@@ -6,7 +6,7 @@
 
 ```bash
 docker pull cfanbo/openclaw-test:latest
-docker run -p 3000:3000 cfanbo/openclaw-test:latest
+docker run -p 8080:8080 cfanbo/openclaw-test:latest
 ```
 
 ### 2. 从源码构建镜像
@@ -20,7 +20,7 @@ cd openclaw-test
 docker build -t rust-webserver:latest .
 
 # 运行容器
-docker run -p 3000:3000 rust-webserver:latest
+docker run -p 8080:8080 rust-webserver:latest
 ```
 
 ---
@@ -32,7 +32,7 @@ docker run -p 3000:3000 rust-webserver:latest
 ```bash
 docker run -d \
   --name rust-webserver \
-  -p 3000:3000 \
+  -p 8080:8080 \
   rust-webserver:latest
 ```
 
@@ -41,7 +41,7 @@ docker run -d \
 ```bash
 docker run -d \
   --name rust-webserver \
-  -p 8080:3000 \
+  -p 9000:8080 \
   rust-webserver:latest
 ```
 
@@ -50,7 +50,7 @@ docker run -d \
 ```bash
 docker run -d \
   --name rust-webserver \
-  -p 3000:3000 \
+  -p 8080:8080 \
   -e SERVER_PORT=8080 \
   -e LOG_LEVEL=debug \
   rust-webserver:latest
@@ -63,7 +63,7 @@ docker run -d \
 cat > my-config.toml << EOF
 [server]
 host = "0.0.0.0"
-port = 3000
+port = 8080
 
 [logging]
 level = "info"
@@ -74,7 +74,7 @@ EOF
 # 运行并挂载配置文件
 docker run -d \
   --name rust-webserver \
-  -p 3000:3000 \
+  -p 8080:8080 \
   -v $(pwd)/my-config.toml:/etc/rust-webserver/config.toml:ro \
   rust-webserver:latest
 ```
@@ -84,7 +84,7 @@ docker run -d \
 ```bash
 docker run -d \
   --name rust-webserver \
-  -p 3000:3000 \
+  -p 8080:8080 \
   -v $(pwd)/logs:/var/log \
   rust-webserver:latest
 ```
@@ -104,9 +104,9 @@ services:
     image: rust-webserver:latest
     container_name: rust-webserver
     ports:
-      - "3000:3000"
+      - "8080:8080"
     environment:
-      - SERVER_PORT=3000
+      - SERVER_PORT=8080
       - LOG_LEVEL=info
       - LOG_FORMAT=json
     volumes:
@@ -114,7 +114,7 @@ services:
       - ./config.toml:/etc/rust-webserver/config.toml:ro
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
       interval: 30s
       timeout: 3s
       retries: 3
@@ -152,7 +152,7 @@ events {
 
 http {
     upstream rust_webserver {
-        server rust-webserver:3000;
+        server rust-webserver:8080;
     }
 
     server {
@@ -271,7 +271,7 @@ RUN apk add --no-cache ca-certificates
 
 COPY --from=builder /app/target/release/rust-webserver /usr/local/bin/rust-webserver
 
-EXPOSE 3000
+EXPOSE 8080
 
 CMD ["rust-webserver"]
 ```
