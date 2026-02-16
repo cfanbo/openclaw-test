@@ -8,7 +8,7 @@
 返回当前版本号
 
 ```bash
-curl http://localhost:3000/version
+curl http://localhost:8080/version
 ```
 
 响应：
@@ -23,7 +23,7 @@ curl http://localhost:3000/version
 返回 `pong`，用于简单的连通性测试
 
 ```bash
-curl http://localhost:3000/ping
+curl http://localhost:8080/ping
 ```
 
 响应：
@@ -35,7 +35,7 @@ pong
 返回服务健康状态
 
 ```bash
-curl http://localhost:3000/health
+curl http://localhost:8080/health
 ```
 
 响应：
@@ -89,7 +89,7 @@ LOG_LEVEL=debug ./rust-webserver-linux-x86_64
 cargo run
 ```
 
-服务器将在 `http://localhost:3000` 启动。
+服务器将在 `http://localhost:8080` 启动。
 
 ### 下载预编译二进制文件
 
@@ -125,10 +125,10 @@ cargo run
 docker build -t rust-webserver:latest .
 
 # 运行容器
-docker run -d -p 3000:3000 --name rust-webserver rust-webserver:latest
+docker run -d -p 8080:8080 --name rust-webserver rust-webserver:latest
 
 # 使用环境变量配置
-docker run -d -p 3000:3000 \
+docker run -d -p 8080:8080 \
   -e SERVER_PORT=8080 \
   -e LOG_LEVEL=debug \
   --name rust-webserver \
