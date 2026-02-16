@@ -39,11 +39,11 @@ RUN mkdir -p /etc/rust-webserver
 COPY config.production.toml /etc/rust-webserver/config.toml
 
 # 暴露端口
-EXPOSE 3000
+EXPOSE 8080
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3000/health || exit 1
+    CMD curl -f http://localhost:8080/health || exit 1
 
 # 设置用户
 RUN useradd -m -u 1000 rustweb && \
