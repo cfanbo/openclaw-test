@@ -50,6 +50,39 @@ curl http://localhost:3000/health
 
 ## 运行
 
+### 使用配置文件（推荐）
+
+服务器支持通过配置文件自定义行为：
+
+```bash
+# 复制示例配置
+cp config.toml.example config.toml
+
+# 编辑配置
+vim config.toml
+
+# 启动服务器
+./rust-webserver-linux-x86_64
+```
+
+**支持的配置文件路径：**
+- `./config.toml`
+- `./rust-webserver.toml`
+- `~/.config/rust-webserver/config.toml`
+- `/etc/rust-webserver/config.toml`
+
+详细配置说明请查看 [CONFIG.md](CONFIG.md)
+
+### 使用环境变量
+
+```bash
+# 自定义端口
+SERVER_PORT=8080 ./rust-webserver-linux-x86_64
+
+# 设置日志级别
+LOG_LEVEL=debug ./rust-webserver-linux-x86_64
+```
+
 ### 从源码运行
 
 ```bash

@@ -2,3 +2,7 @@
 **/*.rs.bk
 Cargo.lock
 .DS_Store
+
+# 配置文件（保留示例文件）
+config.toml
+rust-webserver.toml

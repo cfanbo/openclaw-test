@@ -4,7 +4,7 @@ mod models;
 mod routes;
 
 use axum::Router;
-use config::ServerConfig;
+use config::Config;
 use std::time::Duration;
 use tokio::net::TcpListener;
 use tower_http::timeout::TimeoutLayer;
@@ -12,17 +12,18 @@ use tower_http::trace::TraceLayer;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    // 初始化日志
-    tracing_subscriber::fmt()
-        .with_max_level(tracing::Level::INFO)
-        .init();
+    // 加载配置（配置文件 + 环境变量 + 默认值）
+    let config = Config::load();
 
-    // 加载配置
-    let config = ServerConfig::from_env();
-    let addr = config.addr();
+    // 初始化日志系统
+    config.logging.init()?;
+
+    let addr = config.server.addr()?;
 
     tracing::info!("🚀 Starting {} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
     tracing::info!("📡 Server listening on http://{}", addr);
+    tracing::info!("📊 Log level: {}", config.logging.level);
+    tracing::info!("📝 Log format: {}", config.logging.format);
 
     // 创建路由
     let app = create_app();

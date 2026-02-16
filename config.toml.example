@@ -1,0 +1,26 @@
+# Rust WebServer 配置文件
+# 支持的配置文件路径（按优先级）：
+# 1. ./config.toml
+# 2. ./rust-webserver.toml
+# 3. ~/.config/rust-webserver/config.toml
+# 4. /etc/rust-webserver/config.toml
+
+[server]
+# 服务器监听地址（默认：0.0.0.0）
+host = "0.0.0.0"
+
+# 服务器监听端口（默认：3000）
+port = 3000
+
+[logging]
+# 日志级别：trace, debug, info, warn, error（默认：info）
+level = "info"
+
+# 日志格式：pretty, json, compact（默认：pretty）
+# - pretty: 美化的格式，适合开发
+# - json: JSON 格式，适合日志收集系统
+# - compact: 紧凑格式
+format = "pretty"
+
+# 是否显示日志颜色（默认：true）
+color = true
